@@ -5,12 +5,23 @@ services:
     build: .
     volumes:
       - .:/workspace
+      - claude-home:/home/developer/.claude     # persist Claude auth, config, memory
+      - gh-config:/home/developer/.config/gh   # persist GitHub CLI auth (also handles git credentials)
     environment:
       # Pass your host user's UID and GID to the container
       - HOST_UID=${UID:-1000}
       - HOST_GID=${GID:-1000}
       - CLAUDE_CODE_THEME=light
+      # Git identity — avoids reconfiguring after every restart
+      - GIT_AUTHOR_NAME=Brandon Billings
+      - GIT_AUTHOR_EMAIL=bbillings@sae.org
+      - GIT_COMMITTER_NAME=Brandon Billings
+      - GIT_COMMITTER_EMAIL=bbillings@sae.org
     working_dir: /workspace
     stdin_open: true
     tty: true
     user: "${UID:-1000}:${GID:-1000}"
+
+volumes:
+  claude-home:
+  gh-config:

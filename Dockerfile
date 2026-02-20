@@ -165,6 +165,11 @@ ENV PATH="/home/developer/.npm-global/bin:${PATH}"
 RUN mkdir -p "$HOME/.npm-global" && \
     npm config set prefix "$HOME/.npm-global"
 
+# Configure git — baked into image so it survives container restarts
+# Credentials come from the gh-config named volume (persisted separately)
+RUN git config --global credential.helper '!gh auth git-credential' && \
+    git config --global init.defaultBranch main
+
 # Install Claude Code using native installer
 RUN curl -fsSL https://claude.ai/install.sh | bash
 
