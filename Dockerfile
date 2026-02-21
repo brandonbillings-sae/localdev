@@ -155,6 +155,9 @@ RUN apt-get update && apt-get install -y \
     usbutils \
     && rm -rf /var/lib/apt/lists/*
 
+# Install git-filter-repo for history scrubbing
+RUN pip3 install git-filter-repo --break-system-packages
+
 # Switch to developer user
 USER developer
 
