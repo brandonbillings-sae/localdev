@@ -128,6 +128,21 @@ else
   echo "Info: $HOME/.claude could not be created, skipping mount" >&2
 fi
 
+# Handle .claude.json mount (Claude Code global state file - auth, onboarding, account info)
+CLAUDE_JSON_MOUNT=()
+if [[ ! -f "$HOME/.claude.json" ]]; then
+  echo '{}' > "$HOME/.claude.json" 2>/dev/null || true
+fi
+if [[ -f "$HOME/.claude.json" ]]; then
+  if [[ -r "$HOME/.claude.json" ]]; then
+    CLAUDE_JSON_MOUNT=("-v" "$HOME/.claude.json:/home/developer/.claude.json:rw")
+    echo "Mounting: $HOME/.claude.json -> /home/developer/.claude.json (read-write)" >&2
+  else
+    echo "Warning: $HOME/.claude.json exists but is not readable, skipping mount" >&2
+    ((MOUNT_ERRORS++))
+  fi
+fi
+
 # Handle .config/gh directory mount for GitHub CLI auth persistence
 GH_CONFIG_DIR="$HOME/.config/gh"
 mkdir -p "$GH_CONFIG_DIR" 2>/dev/null || true
@@ -200,6 +215,7 @@ podman run -it --rm \
   "${GROUP_ADD_FLAG[@]}" \
   -v "$(pwd):/${DIR_NAME}" \
   "${CLAUDE_MOUNT[@]}" \
+  "${CLAUDE_JSON_MOUNT[@]}" \
   "${GH_CONFIG_MOUNT[@]}" \
   "${NPM_CACHE_MOUNT[@]}" \
   "${VOLUME_MOUNTS[@]}" \
